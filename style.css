@@ -1,3 +1,16 @@
-.text p {
-  /* font-size: 100px; */
+.infoRow {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+
+  margin-top: 3px;
+  border: 1px solid #ddd;
+}
+
+.infoRow .infoText {
+  vertical-align: top;
+}
+
+.infoRow .hidden {
+  display: none;
 }
