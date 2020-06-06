@@ -1,0 +1,15 @@
+{
+  "name": "funda_notities",
+  "version": "1.0.0",
+  "description": "Voeg notities to aan Funda zoekresultaten",
+  "main": "index.js",
+  "author": "Lennaert Meijvogel <lmeijvogel@yahoo.co.uk>",
+  "license": "MIT",
+  "private": false,
+  "dependencies": {
+    "web-ext": "^4.2.0"
+  },
+  "scripts": {
+    "dev": "web-ext run --url https://www.funda.nl/koop/barendrecht/75000+/sorteer-datum-af/"
+  }
+}
