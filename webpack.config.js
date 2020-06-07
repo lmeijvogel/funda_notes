@@ -1,9 +1,10 @@
 const path = require("path");
 const merge = require("webpack-merge");
+const CopyWebpackPlugin = require("copy-webpack-plugin");
 
 const baseConfig = {
     entry: {
-        "index": "./src/index.ts",
+        index: "./src/index.ts"
     },
     output: {
         path: path.join(__dirname, "dist"),
@@ -25,15 +26,27 @@ const baseConfig = {
                 test: /\.tsx?$/,
                 use: "ts-loader",
                 exclude: /node_modules/
-            },
-            {
-                test: /\.css$/,
-                use: ["style-loader", "css-loader"],
-                sideEffects: true
             }
         ]
     },
-    plugins: []
+    plugins: [
+        new CopyWebpackPlugin({
+            patterns: [
+                {
+                    from: "src/icons/*.png",
+                    to: path.join(__dirname, "dist/icons")
+                },
+                {
+                    from: "src/manifest.json",
+                    to: path.join(__dirname, "dist")
+                },
+                {
+                    from: "src/style.css",
+                    to: path.join(__dirname, "dist")
+                }
+            ]
+        })
+    ]
 };
 
 module.exports = env => {

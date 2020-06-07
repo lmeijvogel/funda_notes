@@ -37,7 +37,7 @@ export class InfoRow extends React.Component<InfoRowProps, InfoRowState> {
                         value={text || ""}
                     ></textarea>
                 ) : (
-                    <p>{text}</p>
+                    <p className="infoRow--text">{text}</p>
                 )}
 
                 <button onClick={this.editButtonClicked}>{this.editButtonLabel}</button>
@@ -82,7 +82,17 @@ export class InfoRow extends React.Component<InfoRowProps, InfoRowState> {
     }
 
     get localStorageKey(): string {
-        const fundaGlobalId = this.props.element.attributes.getNamedItem("data-global-id").value;
+        const idKeyOnCurrentElement = this.props.element.attributes.getNamedItem("data-global-id");
+
+        let fundaGlobalId: string;
+
+        if (idKeyOnCurrentElement !== null) {
+            // On search results page: key is on the same element, we don't want to search globally
+            fundaGlobalId = idKeyOnCurrentElement.value;
+        } else {
+            // On object page, we can be a bit more lax with searching
+            fundaGlobalId = document.querySelector("*[data-global-id]").attributes.getNamedItem("data-global-id").value;
+        }
 
         return `house_info_${fundaGlobalId}`;
     }

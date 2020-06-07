@@ -12,15 +12,18 @@
         "copy-webpack-plugin": "^6.0.2",
         "react": "^16.13.1",
         "react-dom": "^16.13.1",
+        "style-loader": "^1.2.1",
         "web-ext": "^4.2.0",
         "webpack": "^4.43.0",
         "webpack-merge": "^4.2.2"
     },
     "scripts": {
-        "dev": "concurrently --kill-others \"yarn run web-ext\" \"yarn run webpack\"",
-        "web-ext": "web-ext run --verbose --url $SITE",
-        "webpack": "webpack --env.NODE_ENV=dev --watch",
-        "build": "web-ext build --ignore-files=bin/*"
+        "dev": "concurrently --kill-others \"yarn run web-ext\" \"yarn run webpack-watch\"",
+        "web-ext": "cd dist ; web-ext run --verbose --url $SITE",
+        "webpack": "webpack --env.NODE_ENV=dev",
+        "webpack-watch": "webpack --env.NODE_ENV=dev --watch",
+        "build": "web-ext build --ignore-files=bin/*",
+        "clean": "rm -rf dist/*"
     },
     "devDependencies": {
         "prettier": "^2.0.5",
