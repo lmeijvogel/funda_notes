@@ -12,6 +12,7 @@ type InfoRowState = {
 export class InfoRow extends React.Component<InfoRowProps, InfoRowState> {
     constructor(props: InfoRowProps) {
         super(props);
+
         this.state = {
             text: "",
             editing: false
@@ -29,7 +30,15 @@ export class InfoRow extends React.Component<InfoRowProps, InfoRowState> {
 
         return (
             <div className="infoRow">
-                {editing ? <textarea onChange={this.onTextChange} value={text}></textarea> : <p>{text}</p>}
+                {editing ? (
+                    <textarea
+                        onKeyDown={this.onTextAreaKeyDown}
+                        onChange={this.onTextChange}
+                        value={text || ""}
+                    ></textarea>
+                ) : (
+                    <p>{text}</p>
+                )}
 
                 <button onClick={this.editButtonClicked}>{this.editButtonLabel}</button>
             </div>
@@ -52,6 +61,16 @@ export class InfoRow extends React.Component<InfoRowProps, InfoRowState> {
 
     onTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
         this.setState({ text: e.target.value });
+    };
+
+    onTextAreaKeyDown = (e: React.KeyboardEvent) => {
+        const ctrlEnterPressed = e.ctrlKey && e.keyCode == 13;
+
+        if (ctrlEnterPressed) {
+            this.saveText();
+
+            this.setState({ editing: false });
+        }
     };
 
     private retrieveText(): string | null {
