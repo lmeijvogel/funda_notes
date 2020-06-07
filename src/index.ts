@@ -1,14 +1,33 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 
-import { InfoRow } from "./InfoRow"
+import { InfoRow } from "./InfoRow";
 
-const allResults = document.querySelectorAll(".search-result");
+function addCustomNotes() {
+    const allResults = document.querySelectorAll(".search-result");
 
-allResults.forEach(result => {
-    const div = document.createElement("div");
+    document.querySelectorAll("._customNotes").forEach((existing: Element) => existing.remove());
 
-    result.appendChild(div);
+    allResults.forEach((result: Element) => {
+        const div = document.createElement("div");
+        div.className = "_customNotes";
 
-    ReactDOM.render(React.createElement(InfoRow, { element: result }), div);
-});
+        result.appendChild(div);
+
+        ReactDOM.render(React.createElement(InfoRow, { element: result }), div);
+    });
+}
+
+addCustomNotes();
+
+let lastLocation = document.location.pathname;
+
+setInterval(() => {
+    const currentLocation = document.location.pathname;
+
+    if (currentLocation !== lastLocation) {
+        addCustomNotes();
+    }
+
+    lastLocation = currentLocation;
+}, 1000);

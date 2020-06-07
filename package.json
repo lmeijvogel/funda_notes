@@ -8,6 +8,7 @@
     "private": false,
     "dependencies": {
         "@types/react-dom": "^16.9.8",
+        "concurrently": "^5.2.0",
         "copy-webpack-plugin": "^6.0.2",
         "react": "^16.13.1",
         "react-dom": "^16.13.1",
@@ -16,8 +17,10 @@
         "webpack-merge": "^4.2.2"
     },
     "scripts": {
-        "dev": "web-ext run --url https://www.funda.nl/koop/barendrecht/75000+/sorteer-datum-af/",
-        "webpack": "webpack --env.NODE_ENV=dev --watch"
+        "dev": "concurrently --kill-others \"yarn run web-ext\" \"yarn run webpack\"",
+        "web-ext": "web-ext run --verbose --url $SITE",
+        "webpack": "webpack --env.NODE_ENV=dev --watch",
+        "build": "web-ext build --ignore-files=bin/*"
     },
     "devDependencies": {
         "prettier": "^2.0.5",

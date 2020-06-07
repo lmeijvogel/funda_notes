@@ -1,20 +1,27 @@
 {
-  "manifest_version": 2,
-  "name": "Funda notities",
-  "version": "1.0",
+    "manifest_version": 2,
+    "name": "Funda notities",
+    "version": "1.0",
 
-  "description": "Voeg notities to aan Funda-huizen",
+    "description": "Voeg notities to aan Funda-huizen",
 
-  "icons": {
-    "48": "icons/border-48.png"
-  },
+    "icons": {
+        "48": "icons/icon-48.png",
+        "96": "icons/icon-96.png"
+    },
 
-  "content_scripts": [
-    {
-      "matches": ["*://*.funda.nl/koop/*"],
-      "js": ["dist/index.js"],
-      "css": ["style.css"]
+    "content_scripts": [
+        {
+            "matches": ["*://*.funda.nl/koop/*"],
+            "js": ["dist/index.js"],
+            "css": ["style.css"]
+        }
+    ],
+
+    "browser_specific_settings": {
+        "gecko": {
+            "id": "funda_notes@maybird.nl",
+            "strict_min_version": "48.0"
+        }
     }
-  ]
-
 }
