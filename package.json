@@ -1,15 +1,28 @@
 {
-  "name": "funda_notities",
-  "version": "1.0.0",
-  "description": "Voeg notities to aan Funda zoekresultaten",
-  "main": "index.js",
-  "author": "Lennaert Meijvogel <lmeijvogel@yahoo.co.uk>",
-  "license": "MIT",
-  "private": false,
-  "dependencies": {
-    "web-ext": "^4.2.0"
-  },
-  "scripts": {
-    "dev": "web-ext run --url https://www.funda.nl/koop/barendrecht/75000+/sorteer-datum-af/"
-  }
+    "name": "funda_notities",
+    "version": "1.0.0",
+    "description": "Voeg notities to aan Funda zoekresultaten",
+    "main": "index.js",
+    "author": "Lennaert Meijvogel <lmeijvogel@yahoo.co.uk>",
+    "license": "MIT",
+    "private": false,
+    "dependencies": {
+        "@types/react-dom": "^16.9.8",
+        "copy-webpack-plugin": "^6.0.2",
+        "react": "^16.13.1",
+        "react-dom": "^16.13.1",
+        "web-ext": "^4.2.0",
+        "webpack": "^4.43.0",
+        "webpack-merge": "^4.2.2"
+    },
+    "scripts": {
+        "dev": "web-ext run --url https://www.funda.nl/koop/barendrecht/75000+/sorteer-datum-af/",
+        "webpack": "webpack --env.NODE_ENV=dev --watch"
+    },
+    "devDependencies": {
+        "prettier": "^2.0.5",
+        "ts-loader": "^7.0.5",
+        "typescript": "^3.9.5",
+        "webpack-cli": "^3.3.11"
+    }
 }

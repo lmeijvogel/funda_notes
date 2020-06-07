@@ -12,7 +12,7 @@
   "content_scripts": [
     {
       "matches": ["*://*.funda.nl/koop/*"],
-      "js": ["index.js"],
+      "js": ["dist/index.js"],
       "css": ["style.css"]
     }
   ]
