@@ -1,3 +1,4 @@
+import { observable } from "mobx";
 import { observer } from "mobx-react";
 import * as React from "react";
 
@@ -8,27 +9,16 @@ type InfoRowProps = {
     onTextSave: (note: Note) => Promise<boolean>;
 };
 
-type InfoRowState = {
-    editing: boolean;
-};
-
 @observer
-export class InfoRow extends React.Component<InfoRowProps, InfoRowState> {
-    constructor(props: InfoRowProps) {
-        super(props);
-
-        this.state = {
-            editing: false
-        };
-    }
+export class InfoRow extends React.Component<InfoRowProps> {
+    @observable editing = false;
 
     render() {
         const { note } = this.props;
-        const { editing } = this.state;
 
         return (
             <div className="infoRow">
-                {editing ? (
+                {this.editing ? (
                     <textarea
                         onKeyDown={this.onTextAreaKeyDown}
                         onChange={this.onTextAreaChange}
@@ -44,9 +34,7 @@ export class InfoRow extends React.Component<InfoRowProps, InfoRowState> {
     }
 
     private get editButtonLabel(): string {
-        const { editing } = this.state;
-
-        if (editing) {
+        if (this.editing) {
             return "Bewaar";
         }
 
@@ -71,7 +59,7 @@ export class InfoRow extends React.Component<InfoRowProps, InfoRowState> {
                 return;
             }
 
-            this.setState({ editing: false });
+            this.editing = false;
         }
     };
 
@@ -81,13 +69,14 @@ export class InfoRow extends React.Component<InfoRowProps, InfoRowState> {
 
     editButtonClicked = async (e: React.MouseEvent) => {
         e.preventDefault();
-        if (this.state.editing) {
+        if (this.editing) {
             const success = await this.saveText();
 
             if (!success) {
                 return;
             }
         }
-        this.setState({ editing: !this.state.editing });
+
+        this.editing = !this.editing;
     };
 }
