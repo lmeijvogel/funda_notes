@@ -1,47 +1,24 @@
-import { ConfigStore } from "../ConfigStore";
-
-function authorizationHeader(configStore: ConfigStore) {
-    return {
-        Authorization: "Basic " + btoa(configStore.username + ":" + configStore.password)
-    };
-}
+import { ConfigStore, StorageType } from "../ConfigStore";
+import { IStorage } from "./IStorage";
+import { LocalStorage } from "./LocalStorage";
+import { ServerStorage } from "./ServerStorage";
 
 // @ts-ignore
 browser.runtime.onMessage.addListener((message: any, _sender: any, sendResponse: any) => {
     const configStore = new ConfigStore();
     configStore.load();
 
+    const storage = createStorage(configStore);
+
     // Note: Do not make this function async, according to the docs, that will break it.
     switch (message.title) {
         case "loadNotes":
-            fetch(`${configStore.url}/objects`, {
-                method: "GET",
-                headers: authorizationHeader(configStore)
-            })
-                .then(response => response.json())
-                .then(json => sendResponse(json));
-            return true;
-        case "loadNote":
-            fetch(`${configStore.url}/objects/${message.id}`, {
-                method: "GET",
-                headers: authorizationHeader(configStore)
-            })
-                .then(response => response.json())
-                .then(json => sendResponse(json));
+            storage.loadNotes().then(json => sendResponse(json));
 
-            // Return true to make it wait for the sendResponse result after this function returns
             return true;
-
         case "saveNote":
-            fetch(`${configStore.url}/objects/${message.id}`, {
-                method: "PUT",
-                headers: {
-                    Accept: "application/json",
-                    "Content-Type": "application/json",
-                    ...authorizationHeader(configStore)
-                },
-                body: JSON.stringify({ id: message.id, description: message.description })
-            })
+            storage
+                .saveNote(message.id, message.description)
                 .then(() => sendResponse(true))
                 .catch(() => sendResponse(false));
 
@@ -49,3 +26,12 @@ browser.runtime.onMessage.addListener((message: any, _sender: any, sendResponse:
             return true;
     }
 });
+
+function createStorage(configStore: ConfigStore): IStorage {
+    switch (configStore.storageType) {
+        case StorageType.Server:
+            return new ServerStorage(configStore);
+        case StorageType.LocalStorage:
+            return new LocalStorage();
+    }
+}
