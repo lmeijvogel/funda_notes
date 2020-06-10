@@ -1,0 +1,4 @@
+CREATE TABLE objects (
+  id BIGINT PRIMARY KEY,
+  description TEXT
+);

@@ -18,11 +18,12 @@
         "webpack-merge": "^4.2.2"
     },
     "scripts": {
-        "dev": "concurrently --kill-others \"yarn run web-ext\" \"yarn run webpack-watch\"",
+        "dev": ". ./.env ; concurrently --kill-others \"yarn run web-ext\" \"yarn run webpack-watch\" \"yarn run backend\"",
         "web-ext": "cd dist ; web-ext run --verbose --url $SITE",
         "webpack": "webpack --env.NODE_ENV=dev",
         "webpack-watch": "webpack --env.NODE_ENV=dev --watch",
-        "build": "web-ext build --ignore-files=bin/*",
+        "backend": "cd backend; bundle exec ruby app.rb",
+        "build": "cd dist ; web-ext build --ignore-files=bin/*",
         "clean": "rm -rf dist/*"
     },
     "devDependencies": {

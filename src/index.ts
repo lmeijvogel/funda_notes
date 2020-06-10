@@ -3,44 +3,71 @@ import * as ReactDOM from "react-dom";
 
 import { InfoRow } from "./InfoRow";
 
+export type NotesCollection = { [key: number]: string };
+
+async function loadNotesFromStorage(): Promise<NotesCollection> {
+    // @ts-ignore
+    const json = await browser.runtime.sendMessage({ title: "loadNotes" });
+
+    return json;
+}
+
 function clearExistingNotes() {
     document.querySelectorAll("._customNotes").forEach((existing: Element) => existing.remove());
 }
 
-function addNotesToSearchResult() {
+function isSearchResultsPage() {
+    return document.querySelectorAll(".search-result").length > 0;
+}
+
+async function addNotesToSearchResult() {
+    const notes = await loadNotesFromStorage();
+
     const allResults = document.querySelectorAll(".search-result");
 
-    allResults.forEach((result: Element) => addCustomNote(result));
+    allResults.forEach((result: Element) => addCustomNote(result, notes));
 }
 
-function addNoteToProductPage() {
+async function addNoteToProductPage() {
+    const notes = await loadNotesFromStorage();
+
     const header = document.querySelector(".object-media");
 
-    addCustomNote(header);
+    addCustomNote(header, notes);
 }
 
-function addCustomNote(element: Element) {
+function addCustomNote(element: Element, notes: NotesCollection) {
     const div = document.createElement("div");
     div.className = "_customNotes";
 
     element.appendChild(div);
 
-    ReactDOM.render(React.createElement(InfoRow, { element: element }), div);
+    ReactDOM.render(React.createElement(InfoRow, { element: element, notes: notes, onTextSave: saveNote }), div);
 }
 
-clearExistingNotes();
+function saveNote(text: string, fundaGlobalId: number): void {
+    // @ts-ignore
+    browser.runtime.sendMessage({ title: "saveNote", id: fundaGlobalId, description: text });
+}
 
-addNotesToSearchResult();
-addNoteToProductPage();
+async function main() {
+    clearExistingNotes();
 
-let lastLocation = document.location.pathname;
-
-setInterval(() => {
-    const currentLocation = document.location.pathname;
-
-    if (currentLocation !== lastLocation) {
+    if (isSearchResultsPage()) {
         addNotesToSearchResult();
+        let lastLocation = document.location.pathname;
+
+        setInterval(async () => {
+            const currentLocation = document.location.pathname;
+
+            if (currentLocation !== lastLocation) {
+                addNotesToSearchResult();
+            }
+
+            lastLocation = currentLocation;
+        }, 1000);
     }
 
-    lastLocation = currentLocation;
-}, 1000);
+    addNoteToProductPage();
+}
+main();

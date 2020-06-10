@@ -2,10 +2,10 @@ import * as React from "react";
 
 type InfoRowProps = {
     element: Element;
+    notes: { [key: number]: string };
 };
 
 type InfoRowState = {
-    text: string;
     editing: boolean;
 };
 
@@ -14,30 +14,23 @@ export class InfoRow extends React.Component<InfoRowProps, InfoRowState> {
         super(props);
 
         this.state = {
-            text: "",
             editing: false
         };
     }
 
-    componentDidMount() {
-        this.setState({
-            text: this.retrieveText()
-        });
+    get text() {
+        return this.props.notes[this.fundaGlobalId];
     }
 
     render() {
-        const { editing, text } = this.state;
+        const { editing } = this.state;
 
         return (
             <div className="infoRow">
                 {editing ? (
-                    <textarea
-                        onKeyDown={this.onTextAreaKeyDown}
-                        onChange={this.onTextChange}
-                        value={text || ""}
-                    ></textarea>
+                    <textarea onKeyDown={this.onTextAreaKeyDown} value={this.text || ""}></textarea>
                 ) : (
-                    <p className="infoRow--text">{text}</p>
+                    <p className="infoRow--text">{this.text}</p>
                 )}
 
                 <button onClick={this.editButtonClicked}>{this.editButtonLabel}</button>
@@ -46,24 +39,20 @@ export class InfoRow extends React.Component<InfoRowProps, InfoRowState> {
     }
 
     private get editButtonLabel(): string {
-        const { editing, text } = this.state;
+        const { editing } = this.state;
 
         if (editing) {
             return "Bewaar";
         }
 
-        if (text === null) {
-            return "Voeg notitie toe";
-        } else {
+        if (!!this.text) {
             return "Bewerk";
+        } else {
+            return "Voeg notitie toe";
         }
     }
 
-    onTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-        this.setState({ text: e.target.value });
-    };
-
-    onTextAreaKeyDown = (e: React.KeyboardEvent) => {
+    onTextAreaKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
         const ctrlEnterPressed = e.ctrlKey && e.keyCode == 13;
 
         if (ctrlEnterPressed) {
@@ -73,37 +62,24 @@ export class InfoRow extends React.Component<InfoRowProps, InfoRowState> {
         }
     };
 
-    private retrieveText(): string | null {
-        return window.localStorage.getItem(this.localStorageKey);
-    }
-
     private saveText(): void {
-        window.localStorage.setItem(this.localStorageKey, this.state.text);
     }
 
-    get localStorageKey(): string {
+    private get fundaGlobalId(): number {
         const idKeyOnCurrentElement = this.props.element.attributes.getNamedItem("data-global-id");
-
-        let fundaGlobalId: string;
 
         if (idKeyOnCurrentElement !== null) {
             // On search results page: key is on the same element, we don't want to search globally
-            fundaGlobalId = idKeyOnCurrentElement.value;
+            return parseInt(idKeyOnCurrentElement.value, 10);
         } else {
             // On object page, we can be a bit more lax with searching
-            fundaGlobalId = document.querySelector("*[data-global-id]").attributes.getNamedItem("data-global-id").value;
+            return parseInt(
+                document.querySelector("*[data-global-id]").attributes.getNamedItem("data-global-id").value,
+                10
+            );
         }
-
-        return `house_info_${fundaGlobalId}`;
     }
 
     editButtonClicked = (e: React.MouseEvent) => {
-        e.preventDefault();
-
-        if (this.state.editing) {
-            this.saveText();
-        }
-
-        this.setState({ editing: !this.state.editing });
     };
 }
