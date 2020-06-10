@@ -79,7 +79,7 @@ function addCustomNote(element: Element, store: NotesStore) {
         return store.saveNote(note);
     };
 
-    ReactDOM.render(React.createElement(InfoRow, { note: note, onTextSave: saveNote }), div);
+    ReactDOM.render(<InfoRow note={note} onTextSave={saveNote} />, div);
 }
 
 function findGlobalId(element: Element): number {

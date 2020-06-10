@@ -4,7 +4,7 @@ const CopyWebpackPlugin = require("copy-webpack-plugin");
 
 const baseConfig = {
     entry: {
-        index: "./src/index.ts",
+        index: "./src/index.tsx",
         "background/index": "./src/background/index.ts",
         "config/index": "./src/config/index.tsx"
     },
