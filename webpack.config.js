@@ -5,7 +5,8 @@ const CopyWebpackPlugin = require("copy-webpack-plugin");
 const baseConfig = {
     entry: {
         index: "./src/index.ts",
-        background: "./src/background.ts"
+        background: "./src/background.ts",
+        "config/index": "./src/config/index.tsx"
     },
     output: {
         path: path.join(__dirname, "dist"),
@@ -45,6 +46,10 @@ const baseConfig = {
                 {
                     from: "src/style.css",
                     to: path.join(__dirname, "dist")
+                },
+                {
+                    from: "src/config/index.html",
+                    to: path.join(__dirname, "dist/config")
                 }
             ]
         })

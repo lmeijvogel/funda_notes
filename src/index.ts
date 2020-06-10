@@ -33,11 +33,17 @@ class NotesStore {
         return this.notes.get(fundaGlobalId);
     }
 
-    async saveNote(note: Note) {
+    async saveNote(note: Note): Promise<boolean> {
         this.notes.get(note.fundaGlobalId).note = note.note;
 
         // @ts-ignore
-        await browser.runtime.sendMessage({ title: "saveNote", id: note.fundaGlobalId, description: note.note });
+        const result = await browser.runtime.sendMessage({
+            title: "saveNote",
+            id: note.fundaGlobalId,
+            description: note.note
+        });
+
+        return result;
     }
 }
 
@@ -70,7 +76,7 @@ function addCustomNote(element: Element, store: NotesStore) {
     element.appendChild(div);
 
     const saveNote = (note: Note) => {
-        store.saveNote(note);
+        return store.saveNote(note);
     };
 
     ReactDOM.render(React.createElement(InfoRow, { note: note, onTextSave: saveNote }), div);

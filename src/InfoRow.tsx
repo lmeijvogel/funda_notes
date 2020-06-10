@@ -5,7 +5,7 @@ import { Note } from "./Note";
 
 type InfoRowProps = {
     note: Note;
-    onTextSave: (note: Note) => void;
+    onTextSave: (note: Note) => Promise<boolean>;
 };
 
 type InfoRowState = {
@@ -61,24 +61,32 @@ export class InfoRow extends React.Component<InfoRowProps, InfoRowState> {
         this.props.note.note = event.target.value;
     };
 
-    onTextAreaKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    onTextAreaKeyDown = async (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
         const ctrlEnterPressed = e.ctrlKey && e.keyCode == 13;
 
         if (ctrlEnterPressed) {
-            this.saveText();
+            const success = await this.saveText();
+
+            if (!success) {
+                return;
+            }
 
             this.setState({ editing: false });
         }
     };
 
-    private saveText(): void {
-        this.props.onTextSave(this.props.note);
+    private async saveText(): Promise<boolean> {
+        return await this.props.onTextSave(this.props.note);
     }
 
-    editButtonClicked = (e: React.MouseEvent) => {
+    editButtonClicked = async (e: React.MouseEvent) => {
         e.preventDefault();
         if (this.state.editing) {
-            this.saveText();
+            const success = await this.saveText();
+
+            if (!success) {
+                return;
+            }
         }
         this.setState({ editing: !this.state.editing });
     };
