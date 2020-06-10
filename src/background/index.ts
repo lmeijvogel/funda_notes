@@ -1,4 +1,4 @@
-import { ConfigStore } from "./ConfigStore";
+import { ConfigStore } from "../ConfigStore";
 
 function authorizationHeader(configStore: ConfigStore) {
     return {
