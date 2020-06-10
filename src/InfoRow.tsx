@@ -1,14 +1,18 @@
+import { observer } from "mobx-react";
 import * as React from "react";
 
+import { Note } from "./Note";
+
 type InfoRowProps = {
-    element: Element;
-    notes: { [key: number]: string };
+    note: Note;
+    onTextSave: (note: Note) => void;
 };
 
 type InfoRowState = {
     editing: boolean;
 };
 
+@observer
 export class InfoRow extends React.Component<InfoRowProps, InfoRowState> {
     constructor(props: InfoRowProps) {
         super(props);
@@ -18,19 +22,20 @@ export class InfoRow extends React.Component<InfoRowProps, InfoRowState> {
         };
     }
 
-    get text() {
-        return this.props.notes[this.fundaGlobalId];
-    }
-
     render() {
+        const { note } = this.props;
         const { editing } = this.state;
 
         return (
             <div className="infoRow">
                 {editing ? (
-                    <textarea onKeyDown={this.onTextAreaKeyDown} value={this.text || ""}></textarea>
+                    <textarea
+                        onKeyDown={this.onTextAreaKeyDown}
+                        onChange={this.onTextAreaChange}
+                        defaultValue={note.note}
+                    ></textarea>
                 ) : (
-                    <p className="infoRow--text">{this.text}</p>
+                    <p className="infoRow--text">{note.note}</p>
                 )}
 
                 <button onClick={this.editButtonClicked}>{this.editButtonLabel}</button>
@@ -45,12 +50,16 @@ export class InfoRow extends React.Component<InfoRowProps, InfoRowState> {
             return "Bewaar";
         }
 
-        if (!!this.text) {
+        if (!!this.props.note.note) {
             return "Bewerk";
         } else {
             return "Voeg notitie toe";
         }
     }
+
+    onTextAreaChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+        this.props.note.note = event.target.value;
+    };
 
     onTextAreaKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
         const ctrlEnterPressed = e.ctrlKey && e.keyCode == 13;
@@ -63,23 +72,14 @@ export class InfoRow extends React.Component<InfoRowProps, InfoRowState> {
     };
 
     private saveText(): void {
-    }
-
-    private get fundaGlobalId(): number {
-        const idKeyOnCurrentElement = this.props.element.attributes.getNamedItem("data-global-id");
-
-        if (idKeyOnCurrentElement !== null) {
-            // On search results page: key is on the same element, we don't want to search globally
-            return parseInt(idKeyOnCurrentElement.value, 10);
-        } else {
-            // On object page, we can be a bit more lax with searching
-            return parseInt(
-                document.querySelector("*[data-global-id]").attributes.getNamedItem("data-global-id").value,
-                10
-            );
-        }
+        this.props.onTextSave(this.props.note);
     }
 
     editButtonClicked = (e: React.MouseEvent) => {
+        e.preventDefault();
+        if (this.state.editing) {
+            this.saveText();
+        }
+        this.setState({ editing: !this.state.editing });
     };
 }

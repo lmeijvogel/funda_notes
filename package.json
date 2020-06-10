@@ -10,6 +10,8 @@
         "@types/react-dom": "^16.9.8",
         "concurrently": "^5.2.0",
         "copy-webpack-plugin": "^6.0.2",
+        "mobx": "^5.15.4",
+        "mobx-react": "^6.2.2",
         "react": "^16.13.1",
         "react-dom": "^16.13.1",
         "style-loader": "^1.2.1",
@@ -19,6 +21,7 @@
     },
     "scripts": {
         "dev": ". ./.env ; concurrently --kill-others \"yarn run web-ext\" \"yarn run webpack-watch\" \"yarn run backend\"",
+        "dev-frontend": ". ./.env ; concurrently --kill-others \"yarn run web-ext\" \"yarn run webpack-watch\"",
         "web-ext": "cd dist ; web-ext run --verbose --url $SITE",
         "webpack": "webpack --env.NODE_ENV=dev",
         "webpack-watch": "webpack --env.NODE_ENV=dev --watch",

@@ -4,12 +4,28 @@ require 'sinatra/reloader'
 require 'json'
 require 'sqlite3'
 
-get "/objects" do
+$users = File.read("passwords.txt").each_line.map(&:strip)
+
+puts $users.inspect
+
+before do
+  ensure_authorized!
+
   headers cors_headers.merge({
     "Content-Type" => "application/json"
   })
+end
 
+get "/objects" do
   all_data.to_json
+end
+
+options "/objects" do
+  status 204
+end
+
+options "/objects/:id" do
+  status 204
 end
 
 get "/objects/:id" do
@@ -28,7 +44,7 @@ get "/objects/:id" do
   end
 end
 
-post "/objects/:id" do
+put "/objects/:id" do
   data = JSON.parse(request.body.read)
 
   with_db do |db|
@@ -39,11 +55,29 @@ post "/objects/:id" do
   status 204
 end
 
+def ensure_authorized!
+  return true if request.options?
+
+  return if authorized?
+  headers['WWW-Authenticate'] = 'Basic realm="Restricted Area"'
+  halt 401, "Not authorized\n"
+end
+
+def authorized?
+  @auth ||=  Rack::Auth::Basic::Request.new(request.env)
+
+  return false if !@auth.provided?
+  return false if !@auth.basic?
+  return false if !@auth.credentials
+
+  $users.include?(@auth.credentials.join(":"))
+end
+
 def cors_headers
   {
     "Access-Control-Allow-Origin" => "*",
-    "Access-Control-Allow-Methods" => "GET, POST",
-    "Access-Control-Allow-Headers" => "Content-Type",
+    "Access-Control-Allow-Methods" => "GET, PUT, POST",
+    "Access-Control-Allow-Headers" => "Content-Type,Authorization",
   }
 end
 

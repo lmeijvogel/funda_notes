@@ -1,15 +1,44 @@
+import { observable } from "mobx";
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 
 import { InfoRow } from "./InfoRow";
+import { Note } from "./Note";
 
-export type NotesCollection = { [key: number]: string };
+export type NotesCollection = Map<number, string>;
 
-async function loadNotesFromStorage(): Promise<NotesCollection> {
-    // @ts-ignore
-    const json = await browser.runtime.sendMessage({ title: "loadNotes" });
+class NotesStore {
+    @observable notes: Map<number, Note> = new Map<number, Note>();
 
-    return json;
+    async load() {
+        // @ts-ignore
+        const notesOnServer = await browser.runtime.sendMessage({ title: "loadNotes" });
+
+        this.notes.clear();
+
+        Object.keys(notesOnServer)
+            .map(k => parseInt(k, 10))
+            .forEach(key => {
+                const note = notesOnServer[key];
+
+                this.notes.set(key, new Note(key, note));
+            });
+    }
+
+    noteFor(fundaGlobalId: number): Note {
+        if (!this.notes.has(fundaGlobalId)) {
+            this.notes.set(fundaGlobalId, new Note(fundaGlobalId, ""));
+        }
+
+        return this.notes.get(fundaGlobalId);
+    }
+
+    async saveNote(note: Note) {
+        this.notes.get(note.fundaGlobalId).note = note.note;
+
+        // @ts-ignore
+        await browser.runtime.sendMessage({ title: "saveNote", id: note.fundaGlobalId, description: note.note });
+    }
 }
 
 function clearExistingNotes() {
@@ -20,54 +49,71 @@ function isSearchResultsPage() {
     return document.querySelectorAll(".search-result").length > 0;
 }
 
-async function addNotesToSearchResult() {
-    const notes = await loadNotesFromStorage();
-
+async function addNotesToSearchResult(store: NotesStore) {
     const allResults = document.querySelectorAll(".search-result");
 
-    allResults.forEach((result: Element) => addCustomNote(result, notes));
+    allResults.forEach((result: Element) => addCustomNote(result, store));
 }
 
-async function addNoteToProductPage() {
-    const notes = await loadNotesFromStorage();
-
+async function addNoteToProductPage(store: NotesStore) {
     const header = document.querySelector(".object-media");
 
-    addCustomNote(header, notes);
+    addCustomNote(header, store);
 }
 
-function addCustomNote(element: Element, notes: NotesCollection) {
+function addCustomNote(element: Element, store: NotesStore) {
+    const note = store.noteFor(findGlobalId(element));
+
     const div = document.createElement("div");
     div.className = "_customNotes";
 
     element.appendChild(div);
 
-    ReactDOM.render(React.createElement(InfoRow, { element: element, notes: notes, onTextSave: saveNote }), div);
+    const saveNote = (note: Note) => {
+        store.saveNote(note);
+    };
+
+    ReactDOM.render(React.createElement(InfoRow, { note: note, onTextSave: saveNote }), div);
 }
 
-function saveNote(text: string, fundaGlobalId: number): void {
-    // @ts-ignore
-    browser.runtime.sendMessage({ title: "saveNote", id: fundaGlobalId, description: text });
+function findGlobalId(element: Element): number {
+    const idKeyOnCurrentElement = element.attributes.getNamedItem("data-global-id");
+
+    if (idKeyOnCurrentElement !== null) {
+        // On search results page: key is on the same element, we don't want to search globally
+        return parseInt(idKeyOnCurrentElement.value, 10);
+    } else {
+        // On object page, we can be a bit more lax with searching
+        return parseInt(
+            document.querySelector("*[data-global-id]").attributes.getNamedItem("data-global-id").value,
+            10
+        );
+    }
 }
 
 async function main() {
+    const store = new NotesStore();
+
+    await store.load();
+
     clearExistingNotes();
 
     if (isSearchResultsPage()) {
-        addNotesToSearchResult();
+        addNotesToSearchResult(store);
+
         let lastLocation = document.location.pathname;
 
         setInterval(async () => {
             const currentLocation = document.location.pathname;
 
             if (currentLocation !== lastLocation) {
-                addNotesToSearchResult();
+                addNotesToSearchResult(store);
             }
 
             lastLocation = currentLocation;
         }, 1000);
     }
 
-    addNoteToProductPage();
+    addNoteToProductPage(store);
 }
 main();
