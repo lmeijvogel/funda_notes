@@ -33,8 +33,9 @@ const baseConfig = {
         new CopyWebpackPlugin({
             patterns: [
                 {
-                    from: "src/icons/*.png",
-                    to: path.join(__dirname, "dist/icons")
+                    context: "src",
+                    from: "icons/*.png",
+                    to: path.join(__dirname, "dist")
                 },
                 {
                     from: "src/manifest.json",
