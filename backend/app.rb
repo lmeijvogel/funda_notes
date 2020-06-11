@@ -1,10 +1,10 @@
 require 'sinatra'
-require 'sinatra/reloader'
+require 'sinatra/reloader' if !production?
 
 require 'json'
 require 'sqlite3'
 
-$users = File.read("passwords.txt").each_line.map(&:strip)
+$users = File.read("data/passwords.txt").each_line.map(&:strip)
 
 puts $users.inspect
 
@@ -94,7 +94,7 @@ def all_data
 end
 
 def with_db
-  db = SQLite3::Database.open("db.sqlite3")
+  db = SQLite3::Database.open("data/db.sqlite3")
 
   yield db
 ensure

@@ -1,0 +1,12 @@
+version: '3'
+services:
+    backend:
+        build: .
+        environment:
+          - APP_ENV=production
+        volumes:
+          - /var/docker/notes/home/lennaert/projects/funda_notes/backend/data/passwords.txt:/usr/src/app/passwords.txt
+          - /var/docker/notes/home/lennaert/projects/funda_notes/backend/data/db.sqlite3:/usr/src/app/db.sqlite3
+        ports:
+          - "8882:4567"
+
