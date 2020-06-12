@@ -10,5 +10,5 @@
 .infoRow--text {
     vertical-align: top;
 
-    white-space: pre;
+    white-space: pre-wrap;
 }
