@@ -73,7 +73,7 @@ def authorized?
   return false if !@auth.basic?
   return false if !@auth.credentials
 
-  user_with_password?(*@auth)
+  user_with_password?(*@auth.credentials)
 end
 
 def user_with_password?(username, password)
