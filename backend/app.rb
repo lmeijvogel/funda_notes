@@ -5,7 +5,9 @@ require 'bcrypt'
 require 'json'
 require 'sqlite3'
 
-$users = File.read("data/passwords.txt").each_line.each_with_object({}) do |line, acc|
+DATA_BASE_PATH=ENV.fetch("DATA_BASE_PATH")
+
+$users = File.read("#{DATA_BASE_PATH}/passwords.txt").each_line.each_with_object({}) do |line, acc|
   username, password_hash = line.strip.split(":")
   acc[username] = password_hash
 end
@@ -105,7 +107,7 @@ def all_data
 end
 
 def with_db
-  db = SQLite3::Database.open("data/db.sqlite3")
+  db = SQLite3::Database.open("#{DATA_BASE_PATH}/db.sqlite3")
 
   yield db
 ensure
