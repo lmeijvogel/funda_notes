@@ -10,6 +10,8 @@ $users = File.read("data/passwords.txt").each_line.each_with_object({}) do |line
   acc[username] = password_hash
 end
 
+set :bind, '0.0.0.0'
+
 before do
   ensure_authorized!
 
