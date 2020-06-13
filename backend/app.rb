@@ -1,12 +1,14 @@
 require 'sinatra'
 require 'sinatra/reloader' if !production?
 
+require 'bcrypt'
 require 'json'
 require 'sqlite3'
 
-$users = File.read("data/passwords.txt").each_line.map(&:strip)
-
-puts $users.inspect
+$users = File.read("data/passwords.txt").each_line.each_with_object({}) do |line, acc|
+  username, password_hash = line.strip.split(":")
+  acc[username] = password_hash
+end
 
 before do
   ensure_authorized!
@@ -59,6 +61,7 @@ def ensure_authorized!
   return true if request.options?
 
   return if authorized?
+
   headers['WWW-Authenticate'] = 'Basic realm="Restricted Area"'
   halt 401, "Not authorized\n"
 end
@@ -70,7 +73,13 @@ def authorized?
   return false if !@auth.basic?
   return false if !@auth.credentials
 
-  $users.include?(@auth.credentials.join(":"))
+  user_with_password?(*@auth)
+end
+
+def user_with_password?(username, password)
+  user_password_hash = $users[username]
+
+  BCrypt::Password.new(user_password_hash) == password
 end
 
 def cors_headers
